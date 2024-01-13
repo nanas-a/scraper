@@ -1,11 +1,12 @@
 import datetime
 import time
 import requests
+import re
 from bs4 import BeautifulSoup
-from service.cnbc.scraper import scraper
 from config.mongo import connect as mongo_connect
 from bson import ObjectId
 from util.validate import validate_title, validate_url
+from service.cnn.scraper import scrape
 
 
 def start():
@@ -13,7 +14,7 @@ def start():
     total_crawl = 1
     with client:
         for i in range(1, 50):
-            url = 'https://www.cnbcindonesia.com/market/indeks/5/{}'.format(
+            url = 'https://www.cnnindonesia.com/ekonomi/indeks/5/{}'.format(
                 i)
             print("Fetching url {}".format(url))
             page = requests.get(url)
@@ -21,12 +22,11 @@ def start():
                 print("Error while fetching url")
                 break
             soup = BeautifulSoup(page.text, 'html.parser')
-            media = soup.find('ul', class_='media_rows')
-            list_media = media.find_all('li')
-            for index, val in enumerate(list_media):
-                link = val.find('a')['href']
+            media = soup.find('div', class_='w-leftcontent')
+            for article in media.find_all('article'):
+                link = article.find('a')['href']
                 if validate_url(link):
-                    detail = scraper(link)
+                    detail = scrape(link)
                     result = {
                         'link': link,
                         'source': 'cnbc indonesia',
@@ -35,9 +35,11 @@ def start():
                     }
                     result['_id'] = str(ObjectId())
                     collection.insert_one(result)
-                    print(str(total_crawl) + " Success insert " +
+                    print(str(total_crawl)+" Success insert " +
                           result['title']+" to database")
                     total_crawl += 1
                 else:
                     print("Data already exist")
+                    # exit()
                 print("=====================================")
+            # exit()
