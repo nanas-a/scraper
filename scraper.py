@@ -8,7 +8,8 @@ print("1. CNBC Indonesia")
 print("2. CNN Indonesia")
 print("=====================================")
 choice = input("Select service: ")
+total_loop = input("Input total loop: ")
 if choice == '1':
-    cnbc_start()
+    cnbc_start(total_loop)
 elif choice == '2':
-    cnn_start()
+    cnn_start(total_loop)

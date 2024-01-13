@@ -8,11 +8,11 @@ from bson import ObjectId
 from util.validate import validate_title, validate_url
 
 
-def start():
+def start(total_loop: int = 50):
     client, collection = mongo_connect()
     total_crawl = 1
     with client:
-        for i in range(1, 50):
+        for i in range(1, total_loop):
             try:
                 url = 'https://www.cnbcindonesia.com/market/indeks/5/{}'.format(
                     i)
